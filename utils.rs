@@ -1,7 +1,7 @@
 use sha3::Digest;
 use solana_program::secp256k1_recover::Secp256k1Pubkey;
 
-use crate::error::SSIError;
+use crate::{error::SSIError, signed_message::WalletType};
 /// an uncompressed secp256k1 public key is 65 bytes, with a "raw" format
 /// representing the last 64 bytes of the public key.
 pub fn serialize_raw(pub_key: libsecp256k1::PublicKey) -> [u8; 64] {
