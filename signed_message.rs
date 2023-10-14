@@ -118,13 +118,13 @@ impl WalletInfo {
         // encode the recovered key into an ethereum key, with an additional 12 bytes of garbage data
         let constructed_key = self.wallet_type.encode_key(recovered_key);
         // validate the garbage
-        if constructed_key[21..32].ne(&ETH_KEY_GARBAGE) {
-            return Err(SSIError::CompareAndConstructMismatchedKey);
+        if constructed_key[20..32].ne(&ETH_KEY_GARBAGE) {
+            return Err(SSIError::CompareAndConstructMismatchedKey("garbage mismatch".to_string()));
         }
         // this is an ethereum wallet, so only compare the first 20 bytes of actual data
         if wallet_pubkey[0..20].ne(&constructed_key[0..20]) {
             // invalid key
-            return Err(SSIError::CompareAndConstructMismatchedKey);
+            return Err(SSIError::CompareAndConstructMismatchedKey("reconstruction failed".to_string()));
         }
         // copy the first 20 bytes
         let mut parsed_key: [u8; 20] = [0_u8; 20];
@@ -150,7 +150,7 @@ impl WalletType {
                 // eth keys only use the first 20 bytes when encoded
                 kk[0..20].copy_from_slice(&k[..]);
                 // write garbage data to the final bytes
-                kk[21..32].copy_from_slice(&[6, 9, 4, 2, 0, 1, 3, 3, 7, 6, 6, 6][..]);
+                kk[20..32].copy_from_slice(&[6, 9, 4, 2, 0, 1, 3, 3, 7, 6, 6, 6][..]);
                 kk
             }
             Self::Solana => unimplemented!("functionality not available for solana keys"),
@@ -182,5 +182,74 @@ impl std::fmt::Display for WalletType {
             Self::Solana => f.write_str("solana"),
         }?;
         f.write_str(")")
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use crate::utils::convert_recovered_public_key;
+
+    use super::*;
+
+    struct SignedInstructionSerializoorTest {
+
+    }
+
+    impl SignedInstructionSerializoor for SignedInstructionSerializoorTest {
+        fn serialize(&self) -> Vec<u8> {
+            ETH_KEY_GARBAGE.to_vec()
+        }
+    }
+    fn test_key() -> Secp256k1Pubkey {
+        let decoded = hex::decode("d8c858c1b940d1b057ed41a8b95c66c5e62eed8cf7c9b10427962acde766a454f996be64d75112b8da400c90bf3040c4598cea1a05e9adbe8a1789b2e39bf964").unwrap();
+        let decoded = <[u8;64]>::try_from(decoded).unwrap();
+        Secp256k1Pubkey::new(&decoded)
+    }
+    #[test]
+    fn test_eth_garbage() {
+        assert_eq!(ETH_KEY_GARBAGE, [6,9,4,2,0,1,3,3,7,6,6,6]);
+    }
+
+    #[test]
+    fn test_signed_instruction_serializoor() {
+        assert_eq!(SignedInstructionSerializoorTest{}.serialize(), ETH_KEY_GARBAGE.to_vec());
+    }
+
+    #[test]
+    fn test_signed_message_compare_and_construct_eth_pubkey() {
+        let key = test_key();
+        let pub_key = convert_recovered_public_key(key).unwrap();
+        let pub_key_part = construct_eth_pubkey(&pub_key);
+        let mut pub_key_data: [u8; 32] = [0_u8; 32];
+        pub_key_data[0..20].copy_from_slice(&pub_key_part);
+
+        let s_msg = SignedMessage {
+            signature: [9_u8; 64],
+            message_hash: [6_u8; 32],
+            wallet_pubkey: pub_key_data,
+            recovery_id: 1
+        };
+
+        let constructed_key = s_msg.compare_and_construct_eth_pubkey(WalletInfo {
+            wallet_type: WalletType::Ethereum,
+            raw_public_key: serialize_raw(pub_key)
+        }).unwrap();
+
+        assert_eq!(constructed_key, pub_key_part);
+
+        // solana wallet shouldnt be usable in this code
+        assert!(s_msg.compare_and_construct_eth_pubkey(WalletInfo {
+            wallet_type: WalletType::Solana,
+            raw_public_key: serialize_raw(pub_key)
+        }).is_err());
+    }
+
+    #[test]
+    fn test_display_wallet_type() {
+        let disp_eth = format!("{}", WalletType::Ethereum);
+        let disp_sol = format!("{}", WalletType::Solana);
+        assert_eq!(disp_eth, "WalletType(ethereum)");
+        assert_eq!(disp_sol, "WalletType(solana)");
     }
 }

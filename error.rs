@@ -17,8 +17,8 @@ pub enum SSIError {
     Secp256k1Error(#[from] libsecp256k1::Error),
     #[error("signature is malleable, see secp256k1_recover docs")]
     SignatureMalleabilityError,
-    #[error("when constructing a key, a mismatch took place")]
-    CompareAndConstructMismatchedKey,
+    #[error("when constructing a key, a mismatch took place {0}")]
+    CompareAndConstructMismatchedKey(String),
     #[error("wallet type expected to be eth not {0}")]
     NonEthWallet(WalletType),
 }
