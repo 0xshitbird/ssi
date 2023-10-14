@@ -246,6 +246,44 @@ mod test {
     }
 
     #[test]
+    fn test_wallet_type_pubkey_length() {
+        assert_eq!(WalletType::Ethereum.pubkey_length(), 20);
+        assert_eq!(WalletType::Solana.pubkey_length(), 32);
+    }
+
+    #[test]
+    fn test_wallet_type_encode_key() {
+        const EXPECTED: &str = "bdff84f40d14d993a221859c2c5dcdc90305ab26";
+        let key =test_key();
+        let pk = convert_recovered_public_key(key).unwrap();
+        let enc_key = WalletType::Ethereum.encode_key(pk);
+        assert_eq!(EXPECTED, hex::encode(&enc_key[0..20]));
+        assert_eq!(enc_key[20..32], ETH_KEY_GARBAGE);
+    }
+    #[test]
+    fn test_from_signed_message_to_message_opts() {
+        let key = test_key();
+        let pub_key = convert_recovered_public_key(key).unwrap();
+        let enc_key = WalletType::Ethereum.encode_key(pub_key);
+
+        // the signed message we are expecting
+        let s_msg = SignedMessage {
+            signature: [69_u8; 64],
+            message_hash: [9_u8; 32],
+            wallet_pubkey: enc_key,
+            recovery_id: 1
+        };
+        let s_opts = SignedMessageOpts {
+            signature: s_msg.signature,
+            signing_wallet_type: WalletType::Ethereum,
+            recovery_id: s_msg.recovery_id,
+            pub_key: pub_key
+        };
+        let s_msg2: SignedMessage = s_opts.into();
+        assert_eq!(s_msg, s_msg2);
+
+    }
+    #[test]
     fn test_display_wallet_type() {
         let disp_eth = format!("{}", WalletType::Ethereum);
         let disp_sol = format!("{}", WalletType::Solana);
