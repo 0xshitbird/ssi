@@ -13,3 +13,9 @@ With some minor modification, any solana program that has 129 bytes of free spac
 Any compatible blockchain (currently solana + ethereum) which utilizes a secp256k1 public/private key can execute instructions on Solana without actually needing to have a solana wallet.
 
 All you need is a way to construct a signed message in the SSI format, and relaying it to a program on Solana.
+
+# Usage
+
+For simplicity a general purpose implementation of SSI is provided as [ByteSignedIx](./byte_signed_ix.rs), which acts as a wrapper around any existing instruction. 
+
+You can read the tests in `byte_signed_ix.rs` for an example PoC implementing the byte_signed_ix.
