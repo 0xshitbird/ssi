@@ -6,6 +6,11 @@ description = "SSI is a specification for gasless solana instructions"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["proxy-auth"]
+proxy-auth = ["arrayref"]
+no-entrypoint = []
+
 [dependencies.solana-program]
 version = "1.16"
 [dependencies.borsh]
@@ -16,6 +21,9 @@ version = "0.10"
 version = "0.7.0"
 [dependencies.thiserror]
 version = "1"
+[dependencies.arrayref]
+version = "0.3.7"
+optional = true
 [dev-dependencies.rand]
 version = "0.8"
 [dev-dependencies.rand_core]
