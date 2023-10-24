@@ -15,11 +15,27 @@ use solana_program::{
     rent::Rent,
     secp256k1_recover::Secp256k1RecoverError,
     system_instruction,
-    sysvar::Sysvar,
+    sysvar::Sysvar, instruction::AccountMeta, pubkey::Pubkey,
 };
 
 use super::ProxyAuthIx;
 use crate::signed_message::WalletType;
+
+pub struct RegisterAuthUserAccountMeta {
+    pub fee_payer: Pubkey,
+    pub auth_user: Pubkey,
+    pub system_program: Pubkey
+}
+
+impl RegisterAuthUserAccountMeta {
+    pub fn to_account_metas(&self) -> Vec<AccountMeta> {
+        vec![
+            AccountMeta::new(self.fee_payer, true),
+            AccountMeta::new(self.auth_user, false),
+            AccountMeta::new_readonly(self.system_program, false),
+        ]
+    }
+}
 
 /// handlers register the authenticated user
 ///

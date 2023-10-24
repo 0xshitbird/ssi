@@ -9,4 +9,9 @@ pub mod instructions;
 pub mod processor;
 /// account state objects
 pub mod state;
+
+/// program testing
+#[cfg(test)]
+pub mod test;
+
 solana_program::declare_id!("9AXGZxRCXdVeghrfHTFAKVumngPuksG43StaGudXoqgm");

@@ -30,6 +30,13 @@ version = "0.8"
 version = "0.6"
 [dev-dependencies.hex]
 version = "0.4"
+[dev-dependencies.tokio]
+version = "1"
+features = ["full", "parking_lot"]
+[dev-dependencies.solana-program-test]
+version = "1.16"
+[dev-dependencies.solana-sdk]
+version = "1.16"
 
 [profile.release]
 opt-level = 3

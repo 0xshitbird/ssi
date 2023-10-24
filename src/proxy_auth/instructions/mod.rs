@@ -3,17 +3,19 @@ pub mod invoke_authenticated_cpi;
 /// provides the instruction used to create an auth user account
 pub mod register_auth_user;
 
+
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     program_error::ProgramError,
     program_option::COption,
     pubkey::Pubkey,
     sysvar,
+    log::sol_log as log
 };
 use std::convert::TryInto;
 use std::mem::size_of;
 
-use crate::signed_message::{SignedInstructionSerializoor, SignedMessage, WalletType};
+use crate::{signed_message::{SignedInstructionSerializoor, SignedMessage, WalletType}, byte_signed_ix::ByteSignedIx};
 
 /// Instructions supported by the proxy auth program
 ///
@@ -63,6 +65,10 @@ pub struct RegisterAuthUserIx {
     pub wallet_type: WalletType,
 }
 
+/// although we aren't integrating the rest of the signed instruction
+/// format for ProxyAuthIx as it uses ByteSignedIx, we implement this
+/// trait as a convenience for serializing the data from the instruction
+/// that needs to be signed
 impl SignedInstructionSerializoor for ProxyAuthIx {
     fn serialize(&self) -> Vec<u8> {
         match self {
@@ -78,11 +84,13 @@ impl SignedInstructionSerializoor for ProxyAuthIx {
     }
 }
 
+
 impl ProxyAuthIx {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (tag, rest) = input
             .split_first()
             .ok_or(ProgramError::InvalidInstructionData)?;
+        log(&format!("tag {tag}"));
         match *tag {
             0 => {
                 // read the nonce
@@ -199,6 +207,13 @@ impl ProxyAuthIx {
             .map(u64::from_le_bytes)
             .ok_or(ProgramError::InvalidInstructionData)?;
         Ok((value, &input[8..]))
+    }
+}
+
+
+impl Into<ByteSignedIx> for &ProxyAuthIx {
+    fn into(self) -> ByteSignedIx {
+        ByteSignedIx { instruction: Box::new(self.clone()) }
     }
 }
 
