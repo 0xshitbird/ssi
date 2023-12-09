@@ -3,7 +3,7 @@ use thiserror::Error;
 
 use crate::signed_message::WalletType;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum SSIError {
     /// an error return when the message hash input does not match
     /// the expected hash. expected hash is usually the hash

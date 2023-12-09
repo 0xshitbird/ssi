@@ -76,7 +76,7 @@ pub struct SignedMessage {
 /// to prevent issues with wallet types requiring different amount of space
 /// just allocate a fixed 32 bytes per wallet
 #[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WalletType {
     Ethereum = 0,
     Solana = 1,
