@@ -16,6 +16,6 @@ All you need is a way to construct a signed message in the SSI format, and relay
 
 # Usage
 
-For simplicity a general purpose implementation of SSI is provided as [ByteSignedIx](./byte_signed_ix.rs), which acts as a wrapper around any existing instruction. 
+For simplicity a general purpose implementation of SSI is provided as [ByteSignedIx](./src/byte_signed_ix.rs), which acts as a wrapper around any existing instruction. 
 
 You can read the tests in `byte_signed_ix.rs` for an example PoC implementing the byte_signed_ix.
