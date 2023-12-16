@@ -27,6 +27,8 @@ pub enum SSIError {
 
 impl From<SSIError> for ProgramError {
     fn from(value: SSIError) -> Self {
-        Self::BorshIoError(value.to_string())
+        let err_msg = value.to_string();
+        solana_program::log::sol_log(&err_msg);
+        Self::BorshIoError(err_msg)
     }
 }
