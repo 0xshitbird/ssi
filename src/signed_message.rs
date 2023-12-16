@@ -61,7 +61,7 @@ pub struct SignedMessageOpts {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, BorshSerialize, BorshDeserialize,)]
+#[derive(Clone, Copy, Debug, PartialEq, BorshSerialize, BorshDeserialize)]
 pub struct SignedMessage {
     /// this is the signature which was returned from signing the message_hash
     pub signature: [u8; 64],
@@ -76,7 +76,7 @@ pub struct SignedMessage {
 /// to prevent issues with wallet types requiring different amount of space
 /// just allocate a fixed 32 bytes per wallet
 #[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum WalletType {
     Ethereum = 0,
     Solana = 1,

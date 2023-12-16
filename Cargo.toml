@@ -24,6 +24,9 @@ version = "1"
 [dependencies.arrayref]
 version = "0.3.7"
 optional = true
+[dependencies.serde]
+version = "1"
+features = ["derive"]
 [dev-dependencies.rand]
 version = "0.8"
 [dev-dependencies.rand_core]
